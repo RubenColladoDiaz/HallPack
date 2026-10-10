@@ -1,0 +1,7 @@
+03.04.00 patch
+03.04.00 minor
+03.04.00 major
+3.9.12 patch
+03.99.99 patch
+03.99.07 minor
+1.2 patch

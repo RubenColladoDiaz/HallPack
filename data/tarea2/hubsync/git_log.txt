@@ -1,0 +1,12 @@
+f3a91c2 (HEAD -> releases/XHUB-03.X, origin/releases/XHUB-03.X) XHUB-131 Timeout configurable en descargas SSH
+9b0e4d1 Merge branch 'XHUB-129-codigos-duplicados' into releases/XHUB-03.X
+a71c3e0 XHUB-129 Validar codigos de catalogo duplicados en el plan
+5d2f8b7 Revert "XHUB-126 Cache local de artefactos"
+c08e1aa XHUB-126 Cache local de artefactos
+e4b6f19 xhub-127 paginacion indice de artefactos
+2a9d3c5 XHUB-124 Escritura atomica del manifiesto
+7c1e8f0 XHUB-88 Log de checksum MD5
+b3f7a2d XHUB-121 Fix espacio libre
+1d9c4e6 XHUB-118 Reintentos con backoff
+8e2a7b4 (tag: 03.03.00) XHUB-101 Nuevo comando status
+6f1b3c9 XHUB-097 Ajustes de logging

@@ -1,0 +1,17 @@
+{
+  "items": [
+    { "kind": "engine", "name": "ORION", "version": "4.12.3", "repository": "releases",
+      "download_url": "https://artifacts.example.local/repository/releases/engine/ORION/4.12.3/engine-ORION-4.12.3.tar.gz",
+      "size_mb": 1800, "md5": "8f14e45fceea167a5a36dedd4bea2543" },
+    { "kind": "game", "name": "DRGF", "version": "02.04.00", "repository": "releases", "min_engine": "ORION_4.12",
+      "download_url": "https://artifacts.example.local/repository/releases/game/DRGF/02.04.00/game-DRGF-02.04.00.tar.gz",
+      "size_mb": 950, "md5": "c9f0f895fb98ab9159f51fd0297e236d" },
+    { "kind": "game", "name": "DRGF", "version": "02.03.00", "repository": "releases", "min_engine": "ORION_4.10",
+      "download_url": "https://artifacts.example.local/repository/releases/game/DRGF/02.03.00/game-DRGF-02.03.00.tar.gz",
+      "size_mb": 940, "md5": "45c48cce2e2d7fbdea1afc51c7c6ad26" },
+    { "kind": "game", "name": "MYAZ", "version": "01.00.00", "repository": "staging", "min_engine": "ORION_4.10",
+      "download_url": "https://artifacts.example.local/repository/staging/game/MYAZ/01.00.00/game-MYAZ-01.00.00.tar.gz",
+      "size_mb": 1150, "md5": "d3d9446802a44259755d38e6d163e820" }
+  ],
+  "continuationToken": "p2"
+}

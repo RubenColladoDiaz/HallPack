@@ -1,0 +1,5 @@
+[project]
+name = "hubsync"
+version = "3.4.0"
+description = "Synchronises hall servers with the artifact repository"
+requires-python = ">=3.10"

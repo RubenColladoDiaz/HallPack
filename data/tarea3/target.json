@@ -1,0 +1,24 @@
+{
+  "hall_id": "H-0412",
+  "release": "2026-W41",
+  "mixes": [
+    {
+      "name": "SLOTS_A",
+      "engine": "ORION_4.12.3",
+      "games": [
+        { "acronym": "DRGF", "version": "02.04.00", "catalog_code": 292 },
+        { "acronym": "GLDR", "version": "01.08.02", "catalog_code": 301 },
+        { "acronym": "MYAZ", "version": "01.00.00", "catalog_code": 330 },
+        { "acronym": "LKCH", "version": "01.02.00", "catalog_code": 331 }
+      ]
+    },
+    {
+      "name": "BINGO_1",
+      "engine": "VEGA_2.7_RC2",
+      "games": [
+        { "acronym": "BGLX", "version": "05.00.03", "catalog_code": 410 },
+        { "acronym": "BGST", "version": "05.02.00", "catalog_code": 330 }
+      ]
+    }
+  ]
+}

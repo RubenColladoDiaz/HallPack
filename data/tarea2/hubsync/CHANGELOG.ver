@@ -1,0 +1,30 @@
+##############################################
+#       HUB SYNC SERVICE
+#       Version:        03.04.00
+#       Date:           02/10/2026
+##############################################
+	Date: 14/09/2026
+	a.ferrer
+	- Reintentos con backoff al descargar artefactos. XHUB-118
+	- Corregido el calculo de espacio libre en disco. XHUB-121
+	Date: 22/09/2026
+    j.puig
+    - Log del checksum MD5 en modo verbose. HUB-88
+    - Limpieza de ficheros temporales tras un fallo de descarga
+	Date: 19/09/2026
+	a.ferrer
+	- Escritura atomica del manifiesto de sala. XHUB-124
+	Date: 22/09/2026
+	a.ferrer
+	- Soporte de paginacion en el indice de artefactos. XHUB-127
+	Date: 31/09/2026
+	j.puig
+	- Validacion de codigos de catalogo duplicados en el plan. XHUB-129
+##############################################
+#       HUB SYNC SERVICE
+#       Version:        03.03.00
+#       Date:           01/08/2026
+##############################################
+	Date: 28/07/2026
+	a.ferrer
+	- Nuevo comando status. XHUB-101

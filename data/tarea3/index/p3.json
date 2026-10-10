@@ -1,0 +1,11 @@
+{
+  "items": [
+    { "kind": "game", "name": "MYAZ", "version": "01.00.00", "repository": "releases", "min_engine": "ORION_4.10",
+      "download_url": "https://artifacts.example.local/repository/releases/game/MYAZ/01.00.00/game-MYAZ-01.00.00.tar.gz",
+      "size_mb": 1200, "md5": "aab3238922bcc25a6f606eb525ffdc56" },
+    { "kind": "game", "name": "GLDR", "version": "01.08.02", "repository": "releases", "min_engine": "ORION_4.8",
+      "download_url": "https://artifacts.example.local/repository/releases/game/GLDR/01.08.02/game-GLDR-01.08.02.tar.gz",
+      "size_mb": 820, "md5": "9bf31c7ff062936a96d3c8bd1f8f2ff3" }
+  ],
+  "continuationToken": "p4"
+}

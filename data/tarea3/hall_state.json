@@ -1,0 +1,29 @@
+{
+  "hall_id": "H-0412",
+  "snapshot_date": "2026-10-08T21:14:03Z",
+  "server": {
+    "hostname": "hallsrv-0412",
+    "free_disk_mb": 11000
+  },
+  "mixes": [
+    {
+      "name": "SLOTS_A",
+      "platform": "Slots",
+      "engine": "ORION_4.12.1",
+      "games": [
+        { "acronym": "DRGF", "version": "02.03.00", "catalog_code": 292 },
+        { "acronym": "GLDR", "version": "01.08.02", "catalog_code": 301 },
+        { "acronym": "PHNX", "version": "03.00.00", "catalog_code": 315 }
+      ]
+    },
+    {
+      "name": "BINGO_1",
+      "platform": "Bingo",
+      "engine": "VEGA_2.6",
+      "games": [
+        { "acronym": "BGLX", "version": "05.01.00", "catalog_code": 410 },
+        { "acronym": "BGST", "version": "05.01.00", "catalog_code": 411 }
+      ]
+    }
+  ]
+}

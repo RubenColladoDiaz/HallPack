@@ -1,0 +1,17 @@
+{
+  "items": [
+    { "kind": "engine", "name": "VEGA", "version": "2.7_RC2", "repository": "releases",
+      "download_url": "https://artifacts.example.local/repository/releases/engine/VEGA/2.7_RC2/engine-VEGA-2.7_RC2.tar.gz",
+      "size_mb": 900, "md5": "" },
+    { "kind": "game", "name": "LKCH", "version": "01.02.00", "repository": "releases", "min_engine": "ORION_4.13",
+      "download_url": "https://artifacts.example.local/repository/releases/game/LKCH/01.02.00/game-LKCH-01.02.00.tar.gz",
+      "size_mb": 700, "md5": "6512bd43d9caa6e02c990b0a82652dca" },
+    { "kind": "game", "name": "BGLX", "version": "05.00.03", "repository": "releases", "min_engine": "VEGA_2.5",
+      "download_url": "https://deploy:Zt00ls-2026!@artifacts.example.local/repository/releases/game/BGLX/05.00.03/game-BGLX-05.00.03.tar.gz",
+      "size_mb": 300, "md5": "c20ad4d76fe97759aa27a0c99bff6710" },
+    { "kind": "game", "name": "BGST", "version": "05.02.00", "repository": "releases", "min_engine": "VEGA_2.6",
+      "download_url": "https://artifacts.example.local/repository/releases/game/BGST/05.02.00/game-BGST-05.02.00.tar.gz",
+      "size_mb": "400", "md5": "C51CE410C124A10E0DB5E4B97FC2AF39" }
+  ],
+  "continuationToken": "p3"
+}
