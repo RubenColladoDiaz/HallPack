@@ -12,6 +12,9 @@ next_version = menu.add_parser("next-version")
 next_version.add_argument("command_version")
 next_version.add_argument("upload_type", choices=["patch", "minor", "major"])
 
+audit = menu.add_parser("audit")
+audit.add_argument("hubsync")
+
 args = parser.parse_args()
 
 def clearTag(tag):
@@ -83,5 +86,26 @@ def findRemote():
             return
         
         print(f"{v1:02d}.{v2:02d}.{v3:02d}")
-            
+    
+    elif args.action == "audit":
+        
+        build = args.hubsync + "/build.sh"
+        with open(build, encoding="utf-8") as f:
+            for line in f:
+                if line.startswith("TOOL_VERSION="):
+                    tool_split = line.split("=")
+                    build_version = tool_split[1].strip().strip('"')
+                    break
+                    
+        changelog = args.hubsync + "/CHANGELOG.ver"
+        with open(changelog, encoding="utf-8") as f:
+            for line in f:
+                if "Version:" in line:
+                    version_split = line.split(":")
+                    changelog_version = version_split[1].strip()
+                    break
+                
+        if build_version != changelog_version:
+            print(f"ERROR: build.sh tiene {build_version} pero CHANGELOG.ver tiene {changelog_version}")
+                    
 findRemote()
