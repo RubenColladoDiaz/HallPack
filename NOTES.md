@@ -38,3 +38,12 @@ como la fecha, el tema de XHUB-123, etc.
 Problemas encontrados:
 
 Las fechas estan desordenadas y el .toml no respecta la estructura NN.NN.NN version = "3.4.0"
+
+Uso de IA: unicamente para funciones especificas como la estructura de rsplit para definir solo 1 split como maximo o ignorar el case cosa que no recordaba
+
+Cabe decir que solo he tenido tiempo de hacer un ejercicio y medio, he intentado dejar todo claro tanto en algun comentario
+del codigo como en NOTES, normalmente comentaria mas el codigo pero he aprovechado mas NOTES.md para ello.
+Con mas tiempo, creo que podria hacer algo mas optimo, mejor estructurado con funciones y mayor sostenibilidad.
+En un futuro si tengo suerte y consigo el puesto, espero poder demostrar mis habilidades mucho mejor y completas en proyectos reales y con tiempo.
+
+Muchas gracias!!!
