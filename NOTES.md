@@ -19,3 +19,7 @@ a pesar de que priorizo las stable, he pensado seguir la regla escrita antes que
 
 Pendiente:
 Queda pendiente revisar los tags sin formato valido.
+
+Cara al next-version:
+
+He dado por hecho que el formato estricto es el NN.NN.NN y que no se puede superar de 99 por los ejemplos del README.
