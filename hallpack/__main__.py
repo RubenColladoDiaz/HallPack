@@ -13,7 +13,7 @@ resolve_branch.add_argument("tags", nargs="+") # Porque pueed ser mas de un tag
 args = parser.parse_args()
 
 def clearTag(tag):
-    return re.sub(r"_RC\d+$", "", tag)
+    return re.sub(r"_RC\d+$", "", tag, flags=re.IGNORECASE)
 
 def findRemote():
     if args.action == "resolve-branch":
@@ -46,6 +46,5 @@ def findRemote():
                     break
             else:
                 print("ERROR para " + tag)
-
-    
+            
 findRemote()
