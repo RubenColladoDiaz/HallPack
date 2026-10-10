@@ -54,9 +54,34 @@ def findRemote():
         upload_type = args.upload_type
             
         version_split = version.split(".")
-        print(version_split)
+        if len(version_split) != 3:
+            print("No son 3 campos")
+            return
+
+        for part in version_split:
+            if len(part) != 2 or not part.isdigit():
+                print("alguno de los campos no son 2 digitos")
+                return
+            
         v1 = int(version_split[0])
         v2 = int(version_split[1])
         v3 = int(version_split[2])
+        
+        match upload_type:
+            case "patch":
+                v3 += 1
+            case "minor":
+                v2 += 1
+                v3 = 0
+            case "major":
+                v1 += 1
+                v2 = 0
+                v3 = 0
+        
+        if v1 > 99 or v2 > 99 or v3 > 99:
+            print("No se permite que se pase de 99")
+            return
+        
+        print(f"{v1:02d}.{v2:02d}.{v3:02d}")
             
 findRemote()
