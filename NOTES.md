@@ -23,3 +23,7 @@ Queda pendiente revisar los tags sin formato valido.
 Cara al next-version:
 
 He dado por hecho que el formato estricto es el NN.NN.NN y que no se puede superar de 99 por los ejemplos del README.
+
+Para los tests he tenido que repasar como funcionan con pytest https://www.geeksforgeeks.org/python/pytest-tutorial-testing-python-application-using-pytest/
+https://www.geeksforgeeks.org/python/python-subprocess-module/
+Tambien habia tenido un problema con el nombre del archivo, tiene que empezar por test\_
