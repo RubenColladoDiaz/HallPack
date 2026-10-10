@@ -24,6 +24,17 @@ Cara al next-version:
 
 He dado por hecho que el formato estricto es el NN.NN.NN y que no se puede superar de 99 por los ejemplos del README.
 
+Tiempo: 2:45
+
 Para los tests he tenido que repasar como funcionan con pytest https://www.geeksforgeeks.org/python/pytest-tutorial-testing-python-application-using-pytest/
 https://www.geeksforgeeks.org/python/python-subprocess-module/
 Tambien habia tenido un problema con el nombre del archivo, tiene que empezar por test\_
+
+TAREA 2
+
+De momento, audit solo comprueba que las vresiones de build y changelog coincidan, ahora mismo sale OK pero no es fiable porque faltan mas comprobaciones
+como la fecha, el tema de XHUB-123, etc.
+
+Problemas encontrados:
+
+Las fechas estan desordenadas y el .toml no respecta la estructura NN.NN.NN version = "3.4.0"
