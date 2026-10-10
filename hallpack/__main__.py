@@ -1,5 +1,6 @@
 import argparse
 import re
+import sys
 
 parser = argparse.ArgumentParser()
 menu = parser.add_subparsers(dest="action") # Mirar si hago resolve-branch o next-version
@@ -88,6 +89,7 @@ def findRemote():
         print(f"{v1:02d}.{v2:02d}.{v3:02d}")
     
     elif args.action == "audit":
+        errors = []
         
         build = args.hubsync + "/build.sh"
         with open(build, encoding="utf-8") as f:
@@ -106,6 +108,13 @@ def findRemote():
                     break
                 
         if build_version != changelog_version:
-            print(f"ERROR: build.sh tiene {build_version} pero CHANGELOG.ver tiene {changelog_version}")
+            errors.append(f"ERROR: build.sh tiene {build_version} pero CHANGELOG.ver tiene {changelog_version}")
+        
+        if len(errors) > 0:
+            for error in errors:
+                print(error)
+            sys.exit(1) # Si falla, termina
+        else:
+            print("OK")
                     
 findRemote()
