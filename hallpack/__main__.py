@@ -64,6 +64,92 @@ def resolveBranch(args):
             print("ERROR para " + tag)
             sys.exit(1)
 
+def validateFormat(version_split):
+    if len(version_split) != 3:
+        print("No son 3 campos")
+        sys.exit(1)
+        return
+
+    for part in version_split:
+        if len(part) != 2 or not part.isdigit():
+            print("alguno de los campos no son 2 digitos")
+            sys.exit(1)
+            return
+
+def calculateNextVersion(v1, v2, v3, upload_type):
+    match upload_type:
+        case "patch":
+            v3 += 1
+        case "minor":
+            v2 += 1
+            v3 = 0
+        case "major":
+            v1 += 1
+            v2 = 0
+            v3 = 0
+    
+    return [v1, v2, v3]
+
+def limitVersion(new_version):
+    if new_version.v1 > 99 or new_version.v2 > 99 or new_version.v3 > 99:
+        print("No se permite que se pase de 99")
+        sys.exit(1)
+        return
+
+def updateVersion(args):
+    version = args.command_version
+    upload_type = args.upload_type
+            
+    version_split = version.split(".")
+    validateFormat(version_split)
+            
+    v1 = int(version_split[0])
+    v2 = int(version_split[1])
+    v3 = int(version_split[2])
+    
+    new_version = calculateNextVersion(v1, v2, v3, upload_type)
+    limitVersion(new_version)
+        
+    print(f"{new_version.v1:02d}.{new_version.v2:02d}.{new_version.v3:02d}")
+    
+def searchBuild(args):
+    build = args.hubsync + "/build.sh"
+    with open(build, encoding="utf-8") as f:
+        for line in f:
+            if line.startswith("TOOL_VERSION="):
+                tool_split = line.split("=")
+                build_version = tool_split[1].strip().strip('"')
+                break
+            
+    return build_version
+
+def searchChangelog(args):
+    changelog = args.hubsync + "/CHANGELOG.ver"
+    with open(changelog, encoding="utf-8") as f:
+        for line in f:
+            if "Version:" in line:
+                version_split = line.split(":")
+                changelog_version = version_split[1].strip()
+                break
+    
+    return changelog_version
+
+def makeAudit(args):
+    errors = []
+    
+    build_version = searchBuild(args)
+    changelog_version = searchChangelog(args)
+                
+    if build_version != changelog_version:
+        errors.append(f"ERROR: build.sh tiene {build_version} pero CHANGELOG.ver tiene {changelog_version}")
+        
+    if len(errors) > 0:
+        for error in errors:
+            print(error)
+        sys.exit(1)
+    else:
+        print("OK")
+
 def main():
     args = createArgs()
     
@@ -71,68 +157,10 @@ def main():
         resolveBranch(args)
         
     elif args.action == "next-version":
-        version = args.command_version
-        upload_type = args.upload_type
-            
-        version_split = version.split(".")
-        if len(version_split) != 3:
-            print("No son 3 campos")
-            return
-
-        for part in version_split:
-            if len(part) != 2 or not part.isdigit():
-                print("alguno de los campos no son 2 digitos")
-                return
-            
-        v1 = int(version_split[0])
-        v2 = int(version_split[1])
-        v3 = int(version_split[2])
-        
-        match upload_type:
-            case "patch":
-                v3 += 1
-            case "minor":
-                v2 += 1
-                v3 = 0
-            case "major":
-                v1 += 1
-                v2 = 0
-                v3 = 0
-        
-        if v1 > 99 or v2 > 99 or v3 > 99:
-            print("No se permite que se pase de 99")
-            return
-        
-        print(f"{v1:02d}.{v2:02d}.{v3:02d}")
+        updateVersion(args)
     
     elif args.action == "audit":
-        errors = []
-        
-        build = args.hubsync + "/build.sh"
-        with open(build, encoding="utf-8") as f:
-            for line in f:
-                if line.startswith("TOOL_VERSION="):
-                    tool_split = line.split("=")
-                    build_version = tool_split[1].strip().strip('"')
-                    break
-                    
-        changelog = args.hubsync + "/CHANGELOG.ver"
-        with open(changelog, encoding="utf-8") as f:
-            for line in f:
-                if "Version:" in line:
-                    version_split = line.split(":")
-                    changelog_version = version_split[1].strip()
-                    break
-                
-        if build_version != changelog_version:
-            errors.append(f"ERROR: build.sh tiene {build_version} pero CHANGELOG.ver tiene {changelog_version}")
-        
-        if len(errors) > 0:
-            for error in errors:
-                print(error)
-            sys.exit(1)
-        else:
-            print("OK")
+        makeAudit(args)
                     
 if __name__ == "__main__":
     main()
