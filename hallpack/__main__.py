@@ -31,7 +31,6 @@ def splitTag(tag):
     return clear_tag.rsplit("_", 1)
 
 def resolveRelease(version_numbers, name):
-    version_numbers = version_numbers[:-1]
     text_version = ""
     for version_number in version_numbers:
         text_version += version_number + "."
@@ -51,7 +50,8 @@ def resolveBranch(args):
             
         version_numbers = version.split(".")
             
-        while (len(version_numbers) > 1):              
+        while (len(version_numbers) > 1):
+            version_numbers = version_numbers[:-1]
             text_release = resolveRelease(version_numbers, name)
                 
             if text_release + "_stable" in branches:
@@ -90,8 +90,8 @@ def calculateNextVersion(v1, v2, v3, upload_type):
     
     return [v1, v2, v3]
 
-def limitVersion(new_version):
-    if new_version.v1 > 99 or new_version.v2 > 99 or new_version.v3 > 99:
+def limitVersion(v1, v2, v3):
+    if v1 > 99 or v2 > 99 or v3 > 99:
         print("No se permite que se pase de 99")
         sys.exit(1)
         return
@@ -108,9 +108,9 @@ def updateVersion(args):
     v3 = int(version_split[2])
     
     new_version = calculateNextVersion(v1, v2, v3, upload_type)
-    limitVersion(new_version)
+    limitVersion(new_version[0], new_version[1], new_version[2])
         
-    print(f"{new_version.v1:02d}.{new_version.v2:02d}.{new_version.v3:02d}")
+    print(f"{new_version[0]:02d}.{new_version[1]:02d}.{new_version[2]:02d}")
     
 def searchBuild(args):
     build = args.hubsync + "/build.sh"
