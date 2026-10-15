@@ -2,56 +2,73 @@ import argparse
 import re
 import sys
 
-parser = argparse.ArgumentParser()
-menu = parser.add_subparsers(dest="action") # Mirar si hago resolve-branch o next-version
+def createArgs():
+    parser = argparse.ArgumentParser()
+    # Mirar si hago resolve-branch o next-version
+    menu = parser.add_subparsers(dest="action", help="Comandos disponibles")
 
-resolve_branch = menu.add_parser("resolve-branch")
-resolve_branch.add_argument("--branches", required=True)
-resolve_branch.add_argument("tags", nargs="+") # Porque pueed ser mas de un tag
+    resolve_branch = menu.add_parser("resolve-branch", help="Devuelve la rama esperada del motor especificado")
+    resolve_branch.add_argument("--branches", required=True, help="Especifica la ruta donde se encuentra el listado de ramas")
+    # Porque puede ser mas de un tag
+    resolve_branch.add_argument("tags", nargs="+", help="Listado de motores los cuales se quiere saber su rama")
 
-next_version = menu.add_parser("next-version")
-next_version.add_argument("command_version")
-next_version.add_argument("upload_type", choices=["patch", "minor", "major"])
+    next_version = menu.add_parser("next-version", help="Devuelve la siguiente versión despues de cerrar la actual")
+    next_version.add_argument("command_version", help="Version que se desea cerrar")
+    next_version.add_argument("upload_type", choices=["patch", "minor", "major"], help="Tipo de subida de version")
 
-audit = menu.add_parser("audit")
-audit.add_argument("hubsync")
+    audit = menu.add_parser("audit", help="Devuelve si la herramienta esta lista para cerrar version o posibles errores")
+    audit.add_argument("hubsync", help="Especifica la ruta donde se encuentra el estado de la rama de release justo antes de cerrar version")
 
-args = parser.parse_args()
+    return parser.parse_args()
 
-def clearTag(tag):
-    return re.sub(r"_RC\d+$", "", tag, flags=re.IGNORECASE)
+def getBranches(args):
+    with open(args.branches, encoding="utf-8") as f:
+        branches = {line.strip() for line in f if line.strip()}
+        return branches
 
-def findRemote():
-    if args.action == "resolve-branch":
+def splitTag(tag):
+    clear_tag = re.sub(r"_RC\d+$", "", tag, flags=re.IGNORECASE)
+    return clear_tag.rsplit("_", 1)
+
+def resolveRelease(version_numbers, name):
+    version_numbers = version_numbers[:-1]
+    text_version = ""
+    for version_number in version_numbers:
+        text_version += version_number + "."
+    
+    text_version = text_version.rstrip(".")
+    text_version += ".X"
+                
+    return "releases/" + name + "_" + text_version
+
+def resolveBranch(args):
+    branches = getBranches(args)
         
-        with open(args.branches, encoding="utf-8") as f:
-               branches = {line.strip() for line in f if line.strip()}
-        
-        for tag in args.tags:
-            clear_tag = clearTag(tag)
-            splitted_tag = clear_tag.rsplit("_", 1)
-            name = splitted_tag[0]
-            version = splitted_tag[1]
-            version_numbers = version.split(".")
+    for tag in args.tags:
+        splitted_tag = splitTag(tag)
+        name = splitted_tag[0]
+        version = splitted_tag[1]
             
-            while (len(version_numbers) > 1):
-                version_numbers = version_numbers[:-1]
-                text_version = ""
-                for version_number in version_numbers:
-                    text_version += version_number + "."
-                text_version = text_version.rstrip(".")
-                text_version += ".X"
+        version_numbers = version.split(".")
+            
+        while (len(version_numbers) > 1):              
+            text_release = resolveRelease(version_numbers, name)
                 
-                text_release = "releases/" + name + "_" + text_version
-                
-                if text_release + "_stable" in branches:
-                    print(text_release + "_stable")
-                    break
-                if text_release in branches:
-                    print(text_release)
-                    break
-            else:
-                print("ERROR para " + tag)
+            if text_release + "_stable" in branches:
+                print(text_release + "_stable")
+                break
+            if text_release in branches:
+                print(text_release)
+                break
+        else:
+            print("ERROR para " + tag)
+            sys.exit(1)
+
+def main():
+    args = createArgs()
+    
+    if args.action == "resolve-branch":
+        resolveBranch(args)
         
     elif args.action == "next-version":
         version = args.command_version
@@ -113,8 +130,9 @@ def findRemote():
         if len(errors) > 0:
             for error in errors:
                 print(error)
-            sys.exit(1) # Si falla, termina
+            sys.exit(1)
         else:
             print("OK")
                     
-findRemote()
+if __name__ == "__main__":
+    main()
