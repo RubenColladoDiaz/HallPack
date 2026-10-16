@@ -5,7 +5,7 @@ import sys
 def createArgs():
     parser = argparse.ArgumentParser()
     # Mirar si hago resolve-branch o next-version
-    menu = parser.add_subparsers(dest="action", help="Comandos disponibles")
+    menu = parser.add_subparsers(dest="action", required=True ,help="Comandos disponibles")
 
     resolve_branch = menu.add_parser("resolve-branch", help="Devuelve la rama esperada del motor especificado")
     resolve_branch.add_argument("--branches", required=True, help="Especifica la ruta donde se encuentra el listado de ramas")
@@ -45,6 +45,10 @@ def resolveBranch(args):
         
     for tag in args.tags:
         splitted_tag = splitTag(tag)
+        if len(splitTag) != 2:
+            print(f"ERROR: formato de tag inválido: {tag}", file=sys.stderr)
+            sys.exit(1)
+            
         name = splitted_tag[0]
         version = splitted_tag[1]
             
@@ -61,20 +65,18 @@ def resolveBranch(args):
                 print(text_release)
                 break
         else:
-            print("ERROR para " + tag)
+            print("ERROR para " + tag, file=sys.stderr)
             sys.exit(1)
 
 def validateFormat(version_split):
     if len(version_split) != 3:
         print("No son 3 campos")
         sys.exit(1)
-        return
 
     for part in version_split:
         if len(part) != 2 or not part.isdigit():
-            print("alguno de los campos no son 2 digitos")
+            print("alguno de los campos no son 2 digitos", file=sys.stderr)
             sys.exit(1)
-            return
 
 def calculateNextVersion(v1, v2, v3, upload_type):
     match upload_type:
@@ -92,9 +94,8 @@ def calculateNextVersion(v1, v2, v3, upload_type):
 
 def limitVersion(v1, v2, v3):
     if v1 > 99 or v2 > 99 or v3 > 99:
-        print("No se permite que se pase de 99")
+        print("No se permite que se pase de 99", file=sys.stderr)
         sys.exit(1)
-        return
 
 def updateVersion(args):
     version = args.command_version
@@ -117,9 +118,13 @@ def searchBuild(args):
     with open(build, encoding="utf-8") as f:
         for line in f:
             if line.startswith("TOOL_VERSION="):
-                tool_split = line.split("=")
+                tool_split = line.split("=", 1)
                 build_version = tool_split[1].strip().strip('"')
                 break
+    
+    if build_version is None:
+        print("ERROR: no se encontró TOOL_VERSION en build.sh", file=sys.stderr)
+        sys.exit(1)
             
     return build_version
 
@@ -131,6 +136,10 @@ def searchChangelog(args):
                 version_split = line.split(":")
                 changelog_version = version_split[1].strip()
                 break
+    
+    if changelog_version is None:
+        print("ERROR: no se encontró la versión en CHANGELOG.ver", file=sys.stderr)
+        sys.exit(1)
     
     return changelog_version
 
@@ -145,22 +154,21 @@ def makeAudit(args):
         
     if len(errors) > 0:
         for error in errors:
-            print(error)
+            print(error, file=sys.stderr)
         sys.exit(1)
     else:
         print("OK")
 
 def main():
     args = createArgs()
-    
-    if args.action == "resolve-branch":
-        resolveBranch(args)
-        
-    elif args.action == "next-version":
-        updateVersion(args)
-    
-    elif args.action == "audit":
-        makeAudit(args)
+
+    match args.action:
+        case "resolve-branch":
+            resolveBranch(args)
+        case "next-version":
+            updateVersion(args)
+        case "audit":
+            makeAudit(args)
                     
 if __name__ == "__main__":
     main()
