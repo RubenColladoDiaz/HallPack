@@ -174,7 +174,7 @@ def searchVersionsTxt(args):
 
     return versions
 
-def checkName(args):
+def checkName(args, errors):
     toml = args.hubsync + "/pyproject.toml"
     build = args.hubsync + "/build.sh"
     toml_name = ""
@@ -192,12 +192,10 @@ def checkName(args):
                 build_name = line_split[1].replace('"', '').strip()
                 break
 
-    if toml_name == build_name:
-        return True
+    if toml_name != build_name:
+        errors.append(f"ERROR: Los nombres no concuerdan")
 
-    return False
-
-def checkDates(args):
+def checkDates(args, errors):
     changelog = args.hubsync + "/CHANGELOG.ver"
     dates = []
     with open(changelog, encoding="utf-8") as f:
@@ -207,9 +205,8 @@ def checkDates(args):
 
     for i in range(1, len(dates)):
         if dates[i] > dates[i - 1]:
-            return False
-
-    return True
+            errors.append(f"ERROR: Fechas desordenadas en el CHANGELOG")
+            break
 
 def checkVersions(args, errors):
     build_version = searchBuild(args)
@@ -227,10 +224,8 @@ def makeAudit(args):
     errors = []
 
     checkVersions(args, errors)
-    if not checkName(args):
-        errors.append(f"ERROR: Los nombres no concuerdan")
-    if not checkDates(args):
-        errors.append(f"ERROR: Fechas desordenadas en el CHANGELOG")
+    checkName(args, errors)
+    checkDates(args, errors)
     
     if len(errors) > 0:
         for error in errors:
