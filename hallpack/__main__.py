@@ -151,6 +151,7 @@ def searchPyProjectToml(args):
                 line = line.replace('"', '')
                 version_split = line.split("=")
                 toml_version = version_split[1].strip()
+                break
 
     if toml_version is None:
         print("ERROR: no se encontró la versión en pyproject.toml", file=sys.stderr)
@@ -183,25 +184,38 @@ def checkName(args):
             if "name" in line:
                 line_split = line.split("=")
                 toml_name = line_split[1].replace('"', '').strip()
+                break
     with open(build, encoding="utf-8") as f:
         for line in f:
             if line.startswith("TOOL_NAME="):
                 line_split = line.split("=", 1)
                 build_name = line_split[1].replace('"', '').strip()
+                break
 
     if toml_name == build_name:
         return True
 
     return False
 
+def checkDates(args):
+    changelog = args.hubsync + "/CHANGELOG.ver"
+    dates = []
+    with open(changelog, encoding="utf-8") as f:
+        for line in f:
+            if "Date:" in line:
+                dates.append(line.split(":")[1].strip())
+
+    for i in range(1, len(dates)):
+        if dates[i] > dates[i - 1]:
+            return False
+
+    return True
+
 def checkVersions(args, errors):
     build_version = searchBuild(args)
     changelog_version = searchChangelog(args)
     toml_version = searchPyProjectToml(args)
     available_versions = searchVersionsTxt(args)
-
-    if not checkName(args):
-        errors.append(f"ERROR: Los nombres no concuerdan")
 
     if build_version not in available_versions or changelog_version not in available_versions or toml_version not in available_versions:
         errors.append(f"ERROR: La version no se encuentra en versions.txt")
@@ -213,6 +227,10 @@ def makeAudit(args):
     errors = []
 
     checkVersions(args, errors)
+    if not checkName(args):
+        errors.append(f"ERROR: Los nombres no concuerdan")
+    if not checkDates(args):
+        errors.append(f"ERROR: Fechas desordenadas en el CHANGELOG")
     
     if len(errors) > 0:
         for error in errors:
