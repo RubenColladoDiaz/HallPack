@@ -143,15 +143,53 @@ def searchChangelog(args):
     
     return changelog_version
 
-def makeAudit(args):
-    errors = []
-    
+def searchPyProjectToml(args):
+    toml = args.hubsync + "/pyproject.toml"
+    with open(toml, encoding="utf-8") as f:
+        for line in f:
+            if line.startswith("version"):
+                line = line.replace('"', '')
+                version_split = line.split("=")
+                toml_version = version_split[1].strip()
+
+    if toml_version is None:
+        print("ERROR: no se encontró la versión en pyproject.toml", file=sys.stderr)
+        sys.exit(1)
+
+    return toml_version
+
+def searchVersionsTxt(args):
+    versions_txt = args.hubsync + "/versions.txt"
+    versions = []
+    with open(versions_txt, encoding="utf-8") as f:
+        for line in f:
+            version = line.split("\n")[0]
+            if version != "":
+                versions.append(version)
+
+    if versions == []:
+        print("ERROR: no se encontró ninguna version en versions.txt", file=sys.stderr)
+        sys.exit(1)
+
+    return versions
+
+def checkVersions(args, errors):
     build_version = searchBuild(args)
     changelog_version = searchChangelog(args)
-                
-    if build_version != changelog_version:
-        errors.append(f"ERROR: build.sh tiene {build_version} pero CHANGELOG.ver tiene {changelog_version}")
-        
+    toml_version = searchPyProjectToml(args)
+    available_versions = searchVersionsTxt(args)
+
+    if build_version not in available_versions or changelog_version not in available_versions or toml_version not in available_versions:
+        errors.append(f"ERROR: La version no se encuentra en versions.txt")
+
+    if build_version != changelog_version or build_version != toml_version:
+        errors.append(f"ERROR: Los archivos contienen versiones distintas")
+
+def makeAudit(args):
+    errors = []
+
+    checkVersions(args, errors)
+    
     if len(errors) > 0:
         for error in errors:
             print(error, file=sys.stderr)
