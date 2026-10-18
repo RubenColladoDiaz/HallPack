@@ -173,11 +173,35 @@ def searchVersionsTxt(args):
 
     return versions
 
+def checkName(args):
+    toml = args.hubsync + "/pyproject.toml"
+    build = args.hubsync + "/build.sh"
+    toml_name = ""
+    build_name = ""
+    with open(toml, encoding="utf-8") as f:
+        for line in f:
+            if "name" in line:
+                line_split = line.split("=")
+                toml_name = line_split[1].replace('"', '').strip()
+    with open(build, encoding="utf-8") as f:
+        for line in f:
+            if line.startswith("TOOL_NAME="):
+                line_split = line.split("=", 1)
+                build_name = line_split[1].replace('"', '').strip()
+
+    if toml_name == build_name:
+        return True
+
+    return False
+
 def checkVersions(args, errors):
     build_version = searchBuild(args)
     changelog_version = searchChangelog(args)
     toml_version = searchPyProjectToml(args)
     available_versions = searchVersionsTxt(args)
+
+    if not checkName(args):
+        errors.append(f"ERROR: Los nombres no concuerdan")
 
     if build_version not in available_versions or changelog_version not in available_versions or toml_version not in available_versions:
         errors.append(f"ERROR: La version no se encuentra en versions.txt")
