@@ -214,6 +214,26 @@ def checkDates(args, errors):
             errors.append(f"ERROR: Fechas desordenadas en el CHANGELOG")
             break
 
+def checkLogs(args, errors):
+    git_log = args.hubsync + "/git_log.txt"
+    changelog = args.hubsync + "/CHANGELOG.ver"
+    logs = []
+    clogs= []
+    with open(git_log, encoding="utf-8") as f:
+        for line in f:
+            logs.append(line.split(" ", 1)[1].replace("\n", ""))
+            
+    with open(changelog, encoding="utf-8") as f:
+        for line in f:
+            if "-" in line:
+                clogs.append(line.split("-", 1)[1].replace("\n", "").replace(" ", "", 1))
+        clogs.pop()
+    
+    for clog in clogs:
+        if clog not in logs:
+            errors.append("ERROR: Los logs de git_log y CHANGELOG no coinciden")
+            break
+
 def checkVersions(args, errors):
     build_version = searchBuild(args)
     changelog_version = searchChangelog(args)
@@ -232,6 +252,7 @@ def makeAudit(args):
     checkVersions(args, errors)
     checkName(args, errors)
     checkDates(args, errors)
+    checkLogs(args, errors)
     
     if len(errors) > 0:
         for error in errors:
