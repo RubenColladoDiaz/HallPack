@@ -1,6 +1,8 @@
 import argparse
 import re
 import sys
+import json
+import pprint
 
 def createArgs():
     parser = argparse.ArgumentParser()
@@ -268,7 +270,15 @@ def makeAudit(args):
         print("OK")
 
 def makePlan(args):
-    print("test")
+    hall_state = None
+    target = None
+    with open(args.hall, 'r') as f:
+        hall_state = json.load(f)
+    with open(args.target, 'r') as f:
+        target = json.load(f)
+    
+    for mix in hall_state["mixes"]:
+        pprint.pprint(mix["name"])
 
 def main():
     args = createArgs()
@@ -282,6 +292,6 @@ def main():
             makeAudit(args)
         case "plan":
             makePlan(args)
-                    
+
 if __name__ == "__main__":
     main()
