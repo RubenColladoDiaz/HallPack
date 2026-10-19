@@ -270,15 +270,28 @@ def makeAudit(args):
         print("OK")
 
 def makePlan(args):
+    notes = []
+
     hall_state = None
     target = None
     with open(args.hall, 'r') as f:
         hall_state = json.load(f)
     with open(args.target, 'r') as f:
         target = json.load(f)
-    
+
+    hall_engine = None
     for mix in hall_state["mixes"]:
-        pprint.pprint(mix["name"])
+        hall_engine = mix["engine"]
+
+    target_engine = None
+    for mix in target["mixes"]:
+        target_engine = mix["engine"]
+
+    if target_engine != hall_engine:
+        notes.append("La version de motor ha cambiado")
+
+    for note in notes:
+        print(note)
 
 def main():
     args = createArgs()
