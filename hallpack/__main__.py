@@ -198,10 +198,16 @@ def checkName(args, errors):
 def checkDates(args, errors):
     changelog = args.hubsync + "/CHANGELOG.ver"
     dates = []
+    rows_with_sharp = 0
     with open(changelog, encoding="utf-8") as f:
         for line in f:
+            if "##" in line:
+                rows_with_sharp += 1
+            if rows_with_sharp >= 3:
+                break
             if "Date:" in line:
                 dates.append(line.split(":")[1].strip())
+    dates.pop(0)
 
     for i in range(1, len(dates)):
         if dates[i] > dates[i - 1]:
