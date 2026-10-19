@@ -19,6 +19,12 @@ def createArgs():
     audit = menu.add_parser("audit", help="Devuelve si la herramienta esta lista para cerrar version o posibles errores")
     audit.add_argument("hubsync", help="Especifica la ruta donde se encuentra el estado de la rama de release justo antes de cerrar version")
 
+    plan = menu.add_parser("plan", help="Devuelve el plan de actualizacion de una sala")
+    plan.add_argument("--hall", required=True, help="Especifica la ruta donde se encuentra el estado actual de la sala")
+    plan.add_argument("--target", required=True, help="Especifica la ruta donde se encuentra el estado deseado")
+    plan.add_argument("--index", required=True, help="Especifica la ruta donde se encuentra el indice del repositorio de artefactos")
+
+
     return parser.parse_args()
 
 def getBranches(args):
@@ -261,6 +267,9 @@ def makeAudit(args):
     else:
         print("OK")
 
+def makePlan(args):
+    print("test")
+
 def main():
     args = createArgs()
 
@@ -271,6 +280,8 @@ def main():
             updateVersion(args)
         case "audit":
             makeAudit(args)
+        case "plan":
+            makePlan(args)
                     
 if __name__ == "__main__":
     main()
