@@ -269,6 +269,47 @@ def makeAudit(args):
     else:
         print("OK")
 
+def checkEnginesVersions(hall_state, target, notes):
+    hall_engine = None
+    target_engine = None
+    for mix in hall_state["mixes"]:
+        hall_engine = mix["engine"]
+        engine_split = hall_engine.split("_", 1)
+        for tmix in target["mixes"]:
+            target_engine = tmix["engine"]
+            tengine_split = target_engine.split("_", 1)
+            if(engine_split[0] == tengine_split[0]):
+                if engine_split[1] != tengine_split[1]:
+                    notes.append(f"La version de motor ha cambiado. Target: {target_engine}. Hall: {hall_engine}.")
+                    break
+
+def checkGames(hall_state, target, notes):
+    for mix in hall_state["mixes"]:
+        for game in mix["games"]:
+            found = False
+            for tmix in target["mixes"]:
+                for tgame in tmix["games"]:
+                    if(game["acronym"] == tgame["acronym"]):
+                        found = True
+                        if(game["version"] != tgame["version"]):
+                            notes.append(f"La version del juego {game["acronym"]} ha cambiado. {game["version"]} -> {tgame["version"]}.")
+                            break
+            if not found:
+                notes.append(f"El juego {game['acronym']} está en la sala pero no en el target.")
+                
+    for tmix in target["mixes"]:
+        for tgame in tmix["games"]:
+            found = False
+            for mix in hall_state["mixes"]:
+                for game in mix["games"]:
+                    if tgame["acronym"] == game["acronym"]:
+                        found = True
+            if not found:
+                notes.append(f"El juego {tgame['acronym']} está en el target pero no en la sala.")
+                
+def browseArtefactsIndex(args):
+    browse_folder = args.index
+
 def makePlan(args):
     notes = []
 
@@ -278,17 +319,10 @@ def makePlan(args):
         hall_state = json.load(f)
     with open(args.target, 'r') as f:
         target = json.load(f)
-
-    hall_engine = None
-    for mix in hall_state["mixes"]:
-        hall_engine = mix["engine"]
-
-    target_engine = None
-    for mix in target["mixes"]:
-        target_engine = mix["engine"]
-
-    if target_engine != hall_engine:
-        notes.append("La version de motor ha cambiado")
+    
+    checkEnginesVersions(hall_state, target, notes)
+    checkGames(hall_state, target, notes)
+    browseArtefactsIndex(args)
 
     for note in notes:
         print(note)
