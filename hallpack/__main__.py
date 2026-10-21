@@ -1,4 +1,5 @@
 import argparse
+import os
 import re
 import sys
 import json
@@ -308,13 +309,26 @@ def checkGames(hall_state, target, notes):
                 notes.append(f"El juego {tgame['acronym']} está en el target pero no en la sala.")
                 
 def browseArtefactsIndex(args):
-    browse_folder = args.index
+    artifacts = []
+    
+    start_route = args.index + "/start.json"
+    with open(start_route, 'r') as f:
+        start = json.load(f)
+    for item in start["items"]:
+        artifacts.append(item)
+    
+    for i in range(1, len(os.listdir(args.index))):
+        if(os.path.exists(args.index + "/p" + str(i))):
+            with open(args.index + "/p" + str(i), 'r') as f:
+                p = json.load(f)
+            for item in p["items"]:
+                artifacts.append(item)
+    
+    print(artifacts)
 
 def makePlan(args):
     notes = []
 
-    hall_state = None
-    target = None
     with open(args.hall, 'r') as f:
         hall_state = json.load(f)
     with open(args.target, 'r') as f:
