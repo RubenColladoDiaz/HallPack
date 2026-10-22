@@ -54,7 +54,7 @@ def resolveBranch(args):
         
     for tag in args.tags:
         splitted_tag = splitTag(tag)
-        if len(splitTag) != 2:
+        if len(splitted_tag) != 2:
             print(f"ERROR: formato de tag inválido: {tag}", file=sys.stderr)
             sys.exit(1)
             
@@ -124,6 +124,7 @@ def updateVersion(args):
     
 def searchBuild(args):
     build = args.hubsync + "/build.sh"
+    build_version = None
     with open(build, encoding="utf-8") as f:
         for line in f:
             if line.startswith("TOOL_VERSION="):
@@ -139,6 +140,7 @@ def searchBuild(args):
 
 def searchChangelog(args):
     changelog = args.hubsync + "/CHANGELOG.ver"
+    changelog_version = None
     with open(changelog, encoding="utf-8") as f:
         for line in f:
             if "Version:" in line:
@@ -154,6 +156,7 @@ def searchChangelog(args):
 
 def searchPyProjectToml(args):
     toml = args.hubsync + "/pyproject.toml"
+    toml_version = None
     with open(toml, encoding="utf-8") as f:
         for line in f:
             if line.startswith("version"):
