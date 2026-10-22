@@ -311,20 +311,99 @@ def checkGames(hall_state, target, notes):
 def browseArtefactsIndex(args):
     artifacts = []
     
-    start_route = args.index + "/start.json"
+    start_route = os.path.join(args.index, "start.json")
     with open(start_route, 'r') as f:
-        start = json.load(f)
-    for item in start["items"]:
+        page = json.load(f)
+
+    for item in page["items"]:
         artifacts.append(item)
-    
-    for i in range(1, len(os.listdir(args.index))):
-        if(os.path.exists(args.index + "/p" + str(i))):
-            with open(args.index + "/p" + str(i), 'r') as f:
-                p = json.load(f)
-            for item in p["items"]:
-                artifacts.append(item)
-    
-    print(artifacts)
+
+    continuation_token = page["continuationToken"]
+    visited_tokens = set()
+    while continuation_token is not None:
+        if continuation_token in visited_tokens:
+            print(
+                f"ERROR: El índice contiene un ciclo de paginación en el token "
+                f"{continuation_token!r}; se usarán los artefactos leídos hasta ahora.",
+                file=sys.stderr,
+            )
+            break
+        visited_tokens.add(continuation_token)
+
+        page_route = os.path.join(args.index, continuation_token + ".json")
+        with open(page_route, 'r') as f:
+            page = json.load(f)
+
+        for item in page["items"]:
+            artifacts.append(item)
+        continuation_token = page["continuationToken"]
+
+    return artifacts
+
+def findRequiredArtifacts(hall_state, target, artifacts, notes):
+    downloads = []
+
+    # Recorre cada mix objetivo y busca su estado actual en la sala.
+    for target_mix in target["mixes"]:
+        hall_mix = None
+        for mix in hall_state["mixes"]:
+            if mix["name"] == target_mix["name"]:
+                hall_mix = mix
+                break
+
+        # Si el motor cambia, busca la versión objetivo en releases.
+        target_engine = target_mix["engine"].split("_", 1)
+        if hall_mix is None or hall_mix["engine"] != target_mix["engine"]:
+            artifact = None
+            for item in artifacts:
+                if (
+                    item["kind"] == "engine"
+                    and item["name"] == target_engine[0]
+                    and item["version"] == target_engine[1]
+                    and item["repository"] == "releases"
+                ):
+                    artifact = item
+                    break
+
+            if artifact is None:
+                notes.append(
+                    f"No se encontró en releases el motor "
+                    f"{target_engine[0]} {target_engine[1]}."
+                )
+            else:
+                downloads.append(artifact)
+
+        # Para cada juego, solo hace falta descargarlo si no está en la versión objetivo.
+        for target_game in target_mix["games"]:
+            game_version = None
+            if hall_mix is not None:
+                for game in hall_mix["games"]:
+                    if game["acronym"] == target_game["acronym"]:
+                        game_version = game["version"]
+                        break
+
+            # Busca el juego requerido en releases y registra si no existe.
+            if game_version != target_game["version"]:
+                artifact = None
+                for item in artifacts:
+                    if (
+                        item["kind"] == "game"
+                        and item["name"] == target_game["acronym"]
+                        and item["version"] == target_game["version"]
+                        and item["repository"] == "releases"
+                    ):
+                        artifact = item
+                        break
+
+                if artifact is None:
+                    notes.append(
+                        f"No se encontró en releases el juego "
+                        f"{target_game['acronym']} {target_game['version']}."
+                    )
+                else:
+                    downloads.append(artifact)
+
+    return downloads
 
 def makePlan(args):
     notes = []
@@ -336,7 +415,14 @@ def makePlan(args):
     
     checkEnginesVersions(hall_state, target, notes)
     checkGames(hall_state, target, notes)
-    browseArtefactsIndex(args)
+    artifacts = browseArtefactsIndex(args)
+    downloads = findRequiredArtifacts(hall_state, target, artifacts, notes)
+
+    for artifact in downloads:
+        print(
+            f"Descargar {artifact['kind']} {artifact['name']} "
+            f"{artifact['version']}: {artifact['download_url']}"
+        )
 
     for note in notes:
         print(note)
