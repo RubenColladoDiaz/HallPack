@@ -3,9 +3,9 @@ import os
 import re
 import sys
 import json
-import pprint
 
 def createArgs():
+    # Define los comandos disponibles y los argumentos que necesita cada uno.
     parser = argparse.ArgumentParser()
     # Mirar si hago resolve-branch o next-version
     menu = parser.add_subparsers(dest="action", required=True ,help="Comandos disponibles")
@@ -31,15 +31,18 @@ def createArgs():
     return parser.parse_args()
 
 def getBranches(args):
+    # Lee el fichero de ramas y devuelve sus nombres sin espacios ni líneas vacías.
     with open(args.branches, encoding="utf-8") as f:
         branches = {line.strip() for line in f if line.strip()}
         return branches
 
 def splitTag(tag):
+    # Quita un sufijo RC y separa el nombre del motor de su versión.
     clear_tag = re.sub(r"_RC\d+$", "", tag, flags=re.IGNORECASE)
     return clear_tag.rsplit("_", 1)
 
 def resolveRelease(version_numbers, name):
+    # Construye el nombre de una rama general a partir de los segmentos de versión.
     text_version = ""
     for version_number in version_numbers:
         text_version += version_number + "."
@@ -50,6 +53,7 @@ def resolveRelease(version_numbers, name):
     return "releases/" + name + "_" + text_version
 
 def resolveBranch(args):
+    # Prueba ramas de la más específica a la más general para cada tag.
     branches = getBranches(args)
         
     for tag in args.tags:
@@ -78,6 +82,7 @@ def resolveBranch(args):
             sys.exit(1)
 
 def validateFormat(version_split):
+    # Comprueba que la versión tenga tres campos numéricos de dos dígitos.
     if len(version_split) != 3:
         print("No son 3 campos")
         sys.exit(1)
@@ -88,6 +93,7 @@ def validateFormat(version_split):
             sys.exit(1)
 
 def calculateNextVersion(v1, v2, v3, upload_type):
+    # Incrementa el campo elegido y pone a cero los campos de menor importancia.
     match upload_type:
         case "patch":
             v3 += 1
@@ -102,11 +108,13 @@ def calculateNextVersion(v1, v2, v3, upload_type):
     return [v1, v2, v3]
 
 def limitVersion(v1, v2, v3):
+    # Impide generar versiones con algún campo superior a 99.
     if v1 > 99 or v2 > 99 or v3 > 99:
         print("No se permite que se pase de 99", file=sys.stderr)
         sys.exit(1)
 
 def updateVersion(args):
+    # Valida, calcula e imprime la siguiente versión solicitada.
     version = args.command_version
     upload_type = args.upload_type
             
@@ -123,6 +131,7 @@ def updateVersion(args):
     print(f"{new_version[0]:02d}.{new_version[1]:02d}.{new_version[2]:02d}")
     
 def searchBuild(args):
+    # Lee TOOL_VERSION de build.sh y falla si el archivo no la define.
     build = args.hubsync + "/build.sh"
     build_version = None
     with open(build, encoding="utf-8") as f:
@@ -139,6 +148,7 @@ def searchBuild(args):
     return build_version
 
 def searchChangelog(args):
+    # Extrae del changelog la versión indicada en su cabecera.
     changelog = args.hubsync + "/CHANGELOG.ver"
     changelog_version = None
     with open(changelog, encoding="utf-8") as f:
@@ -155,6 +165,7 @@ def searchChangelog(args):
     return changelog_version
 
 def searchPyProjectToml(args):
+    # Lee la versión declarada en pyproject.toml.
     toml = args.hubsync + "/pyproject.toml"
     toml_version = None
     with open(toml, encoding="utf-8") as f:
@@ -172,6 +183,7 @@ def searchPyProjectToml(args):
     return toml_version
 
 def searchVersionsTxt(args):
+    # Devuelve las versiones históricas guardadas en versions.txt.
     versions_txt = args.hubsync + "/versions.txt"
     versions = []
     with open(versions_txt, encoding="utf-8") as f:
@@ -187,6 +199,7 @@ def searchVersionsTxt(args):
     return versions
 
 def checkName(args, errors):
+    # Compara el nombre de la herramienta declarado en build.sh y pyproject.toml.
     toml = args.hubsync + "/pyproject.toml"
     build = args.hubsync + "/build.sh"
     toml_name = ""
@@ -208,6 +221,7 @@ def checkName(args, errors):
         errors.append(f"ERROR: Los nombres no concuerdan")
 
 def checkDates(args, errors):
+    # Revisa que las fechas de las entradas del changelog estén en orden descendente.
     changelog = args.hubsync + "/CHANGELOG.ver"
     dates = []
     rows_with_sharp = 0
@@ -227,6 +241,7 @@ def checkDates(args, errors):
             break
 
 def checkLogs(args, errors):
+    # Comprueba que las entradas del changelog aparezcan también en el registro de Git.
     git_log = args.hubsync + "/git_log.txt"
     changelog = args.hubsync + "/CHANGELOG.ver"
     logs = []
@@ -247,6 +262,7 @@ def checkLogs(args, errors):
             break
 
 def checkVersions(args, errors):
+    # Contrasta las versiones declaradas en los archivos con el histórico publicado.
     build_version = searchBuild(args)
     changelog_version = searchChangelog(args)
     toml_version = searchPyProjectToml(args)
@@ -259,6 +275,7 @@ def checkVersions(args, errors):
         errors.append(f"ERROR: Los archivos contienen versiones distintas")
 
 def makeAudit(args):
+    # Ejecuta todas las comprobaciones y comunica errores o confirma que todo está correcto.
     errors = []
 
     checkVersions(args, errors)
@@ -274,6 +291,7 @@ def makeAudit(args):
         print("OK")
 
 def checkEnginesVersions(hall_state, target, notes):
+    # Añade una nota cuando detecta un motor de la misma familia con otra versión.
     hall_engine = None
     target_engine = None
     for mix in hall_state["mixes"]:
@@ -288,6 +306,7 @@ def checkEnginesVersions(hall_state, target, notes):
                     break
 
 def checkGames(hall_state, target, notes):
+    # Anota juegos cuya versión cambia y juegos que solo aparecen en uno de los estados.
     for mix in hall_state["mixes"]:
         for game in mix["games"]:
             found = False
@@ -312,6 +331,7 @@ def checkGames(hall_state, target, notes):
                 notes.append(f"El juego {tgame['acronym']} está en el target pero no en la sala.")
                 
 def browseArtefactsIndex(args):
+    # Reúne los artefactos de las páginas enlazadas por el índice local.
     artifacts = []
     
     start_route = os.path.join(args.index, "start.json")
@@ -409,6 +429,7 @@ def findRequiredArtifacts(hall_state, target, artifacts, notes):
     return downloads
 
 def makePlan(args):
+    # Carga los estados, calcula diferencias y muestra descargas y notas del plan.
     notes = []
 
     with open(args.hall, 'r') as f:
@@ -431,6 +452,7 @@ def makePlan(args):
         print(note)
 
 def main():
+    # Interpreta los argumentos y llama a la función del comando seleccionado.
     args = createArgs()
 
     match args.action:
